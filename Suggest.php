@@ -26,9 +26,13 @@ class Suggest {
 
     private $ret = [];
 
-    public function __construct($phrase,$startLetter,$endLetter){
+    private $removeWord =false;
+
+    public function __construct($phrase,$startLetter,$endLetter,$removeWord=false){
 
         $this->range = range(strtolower($startLetter),strtolower($endLetter));
+
+        $this->removeWord = $removeWord;
 
         $this->stopWords = file(self::$stopWordsFile);
 
@@ -61,6 +65,11 @@ class Suggest {
         $ret=[];
 
         foreach($suggests as $suggest){
+
+            if($this->removeWord==true){
+                $suggest = str_replace(trim($this->getPhrase()),"",$suggest);
+            }
+
             $suggest=preg_split("/\s/",$suggest);
 
             $temp=[];

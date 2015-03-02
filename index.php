@@ -1,10 +1,20 @@
 <?php
+error_reporting(E_ALL);
+ini_set("display_errors","on");
+
 include("Suggest.php");
 
 $suggest = null;
 if(isset($_GET["phrase"])){
 
-    $suggest = new Suggest($_GET["phrase"],$_GET["startLetter"],$_GET["endLetter"]);
+
+    if(isset($_GET["removeWord"])){
+        $removeWord=true;
+    }else{
+        $removeWord=false;
+    }
+
+    $suggest = new Suggest($_GET["phrase"],$_GET["startLetter"],$_GET["endLetter"],$removeWord);
     $suggest->run();
 
 
@@ -44,18 +54,23 @@ if(isset($_GET["phrase"])){
                 <div class="panel-heading">Such-Einstellungen</div>
                 <div class="panel-body">
 
-                        <form method="GET" action="/index.php">
+                        <form method="GET" action="index.php">
                             <div class="form-group">
                                 <label for="phrase">Suche-Phrase</label>
-                                <input type="text" class="form-control" id="phrase" placeholder="Such-Phrase" name="phrase"/>
+                                <input type="text" class="form-control" id="phrase" placeholder="Such-Phrase" value="<?=(isset($_GET["phrase"]))?$_GET["phrase"]:"";?>" name="phrase"/>
                             </div>
                             <div class="form-group">
                                 <label for="phrase">Start-Buchstabe</label>
-                                <input type="text" class="form-control" id="phrase" value="a" placeholder="Start-Buchstabe" name="startLetter"/>
+                                <input type="text" class="form-control" id="phrase" value="<?=(isset($_GET["startLetter"]))?$_GET["startLetter"]:"a";?>" placeholder="Start-Buchstabe" name="startLetter"/>
                             </div>
                             <div class="form-group">
                                 <label for="phrase">End-Buchstabe</label>
-                                <input type="text" class="form-control" id="phrase" value="g" placeholder="End-Buchstabe" name="endLetter"/>
+                                <input type="text" class="form-control" id="phrase" value="<?=(isset($_GET["endLetter"]))?$_GET["endLetter"]:"g";?>" placeholder="End-Buchstabe" name="endLetter"/>
+                            </div>
+                            <div class="checkbox">
+                                <label>
+                                    <input <?=(isset($_GET["removeWord"]))?"checked":"";?> value="1" name="removeWord" type="checkbox"> Entferne Phrase
+                                </label>
                             </div>
 
 
@@ -78,16 +93,29 @@ if(isset($_GET["phrase"])){
                     <?php
                     } else {
                         $output=$suggest->getRet();
-                        echo '<h4>Found: '.count($output).' Vorschläge</h4><ul class="list-group">';
 
-                        foreach($output as $element){
-                        ?>
-                            <li class="list-group-item"><?=$element?></li>
-                        <?php
-                        }
-                        ?>
+                     ?>
+                        <div class="col-md-6">
+                            <ul class="list-group">
+                            <?php
+                            for($i=0;$i<(count($output)/2);$i++){
+                                if(!isset($output[$i])){continue;}
+                             echo '<li class="list-group-item">'.$output[$i].'</li>';
+                            }
+                            ?>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="list-group">
+                                <?php
+                                for($i=ceil(count($output)/2);$i<count($output);$i++){
+                                    if(!isset($output[$i])){continue;}
+                                    echo '<li class="list-group-item">'.$output[$i].'</li>';
+                                }
+                                ?>
+                            </ul>
+                        </div>
 
-                        </ul>
 
 
                     <?php
